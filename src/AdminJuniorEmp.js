@@ -35,29 +35,53 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+const checkAuth = (res) => {
+  if (res.status === 401) {
+    throw Error("unauthorized");
+  } else {
+    return res.json();
+  }
+};
+
+const logout = () => {
+  sessionStorage.clear();
+  window.location.href = "/admin";
+};
+
 export function AdminJuniorEmp() {
   const [juniorEmp, setJuniorEmp] = useState(null);
 
-
   const getJuniorEmp = () => {
-    fetch(`${API}/admin/juniorEmp`)
-      .then((res) => res.json())
-      .then((result) => setJuniorEmp(result));
+    fetch(`${API}/admin/juniorEmp`, {
+      headers: {
+        "x-auth-token": sessionStorage.getItem("token"),
+      },
+    })
+      .then((res) => checkAuth(res))
+      .then((result) => setJuniorEmp(result))
+      .catch((err) => logout());
   };
 
   useEffect(() => getJuniorEmp(), []);
 
-
-return juniorEmp ? <Junior juniorEmp={juniorEmp} getJuniorEmp={getJuniorEmp} /> : <h2>Loading table...</h2>
-  
+  return juniorEmp ? (
+    <Junior juniorEmp={juniorEmp} getJuniorEmp={getJuniorEmp} />
+  ) : (
+    <h2>Loading table...</h2>
+  );
 }
 
-function Junior({juniorEmp, getJuniorEmp}){
+function Junior({ juniorEmp, getJuniorEmp }) {
   const navigate = useNavigate();
   const deleteJuniorEmp = async (id) => {
-    await fetch(`${API}/admin/delete/juniorEmp/${id}`, {
-      method: "DELETE",
-    });
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user"
+    );
+    if (confirmDelete === true) {
+      await fetch(`${API}/admin/delete/juniorEmp/${id}`, {
+        method: "DELETE",
+      });
+    }
     getJuniorEmp();
   };
 

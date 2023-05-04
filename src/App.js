@@ -21,6 +21,7 @@ import { EditJuniorEmpByAdmin } from "./EditJuniorEmpByAdmin";
 import { Login } from "./Login";
 import { SignUp } from "./SignUp";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { ForgetPassword } from "./ForgetPassword";
 // import { Manager } from "./Manager";
 // import { SeniorEmployees } from "./SeniorEmployees";
 // import { JuniorEmployees } from "./JuniorEmployees";
@@ -38,10 +39,7 @@ function App() {
             <Button color="inherit" onClick={() => navigate("/admin")}>
               Administrator
             </Button>
-            {/* <Button color="inherit" onClick={() => navigate("/admin/signUp")}>
-              Sign Up
-            </Button> */}
-            <Button color="inherit" onClick={() => navigate("/manager")}>
+            {/* <Button color="inherit" onClick={() => navigate("/manager")}>
               Manager
             </Button>
             <Button color="inherit" onClick={() => navigate("/seniorEmp")}>
@@ -49,7 +47,7 @@ function App() {
             </Button>
             <Button color="inherit" onClick={() => navigate("/juniorEmp")}>
               Junior Employees
-            </Button>
+            </Button> */}
           </Toolbar>
         </AppBar>
       </Box>
@@ -57,6 +55,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/admin/signUp" element={<SignUp />} />
         <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin/forgetPassword" element={<ForgetPassword />} />
         <Route
           path="/admin"
           element={

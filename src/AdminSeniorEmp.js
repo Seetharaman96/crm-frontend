@@ -35,28 +35,54 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+const checkAuth = (res) => {
+  if (res.status === 401) {
+    throw Error("unauthorized");
+  } else {
+    return res.json();
+  }
+};
+
+const logout = () => {
+  sessionStorage.clear();
+  window.location.href = "/admin";
+};
+
 export function AdminSeniorEmp() {
   const [seniorEmp, setSeniorEmp] = useState(null);
 
-
   const getSeniorEmp = () => {
-    fetch(`${API}/admin/seniorEmp`)
-      .then((res) => res.json())
-      .then((result) => setSeniorEmp(result));
+    fetch(`${API}/admin/seniorEmp`, {
+      headers: {
+        "x-auth-token": sessionStorage.getItem("token"),
+      },
+    })
+      .then((res) => checkAuth(res))
+      .then((result) => setSeniorEmp(result))
+      .catch((err) => logout());
   };
 
   useEffect(() => getSeniorEmp(), []);
 
-  return seniorEmp ? <Senior seniorEmp={seniorEmp} getSeniorEmp={getSeniorEmp} /> : <h2>Loading table...</h2>
+  return seniorEmp ? (
+    <Senior seniorEmp={seniorEmp} getSeniorEmp={getSeniorEmp} />
+  ) : (
+    <h2>Loading table...</h2>
+  );
 }
 
-function Senior({seniorEmp, getSeniorEmp}){
+function Senior({ seniorEmp, getSeniorEmp }) {
   const navigate = useNavigate();
   const deleteSeniorEmp = async (id) => {
-    await fetch(`${API}/admin/delete/seniorEmp/${id}`, {
-      method: "DELETE",
-    });
-    getSeniorEmp()
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user"
+    );
+    if (confirmDelete === true) {
+      await fetch(`${API}/admin/delete/seniorEmp/${id}`, {
+        method: "DELETE",
+      });
+    }
+    getSeniorEmp();
   };
 
   return (

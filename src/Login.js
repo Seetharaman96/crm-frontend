@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { API } from "./global";
+import { useState } from "react";
 
 const formValidationSchema = yup.object({
   userName: yup.string().required().email(),
@@ -12,6 +13,7 @@ const formValidationSchema = yup.object({
 
 export function Login() {
   const navigate = useNavigate();
+  let [loginState, setLoginState] = useState("success")
   const { handleSubmit, handleChange, handleBlur, values, errors, touched } =
     useFormik({
       initialValues: {
@@ -27,15 +29,23 @@ export function Login() {
             "Content-type": "application/json"
           },
           body: JSON.stringify(user),
-        });
-        const result = await data.json();
-        console.log(result);
-        localStorage.setItem("token", result.token);
-        navigate("/admin")
+        })
+        if(data.status === 400){
+          // console.log(Error);
+          setLoginState("error");
+          alert("invalid credentials");
+        }else{
+          setLoginState("success");
+          const result = await data.json();
+          console.log(result);
+          sessionStorage.setItem("token", result.token);
+          navigate("/admin")
+          alert("Login Successful");
+        }
       },
     });
   return (
-    <form onSubmit={handleSubmit} className="form">
+    <form onSubmit={handleSubmit} className="register-form">
       <h3>Login Form</h3>
       <TextField
         label="User Name"
@@ -52,6 +62,7 @@ export function Login() {
       <TextField
         label="Password"
         variant="outlined"
+        type="password"
         name="password"
         onChange={handleChange}
         onBlur={handleBlur}
@@ -61,13 +72,15 @@ export function Login() {
           touched.password && errors.password ? errors.password : null
         }
       />
-      <Button type="submit" variant="contained">
-        Login
+      <Button color={loginState} type="submit" variant="contained">
+        {loginState==="success" ? "Submit" : "Retry"}
       </Button>
-      <Button variant="outlined" onClick={() => navigate("/admin/signUp")}>
+      <Button variant="text" onClick={() => navigate("/admin/signUp")}>
         New User?Signup
       </Button>
-      {/* <a href="/admin/signUp">New User?Signup</a> */}
+      <Button variant="text" onClick={() => navigate("/admin/forgetPassword")}>
+        Forget Password
+      </Button>
     </form>
   );
 }

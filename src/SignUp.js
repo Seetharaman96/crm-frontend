@@ -19,21 +19,28 @@ export function SignUp() {
         password: "",
       },
       validationSchema: formValidationSchema,
-      onSubmit: (newUser) => {
-        console.log("Form values", newUser);
-        addUser(newUser);
+      onSubmit: async (newUser) => {
+        // console.log("Form values", newUser);
+        // addUser(newUser);
+        const data = await fetch(`${API}/admin/signUp`, {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(newUser),
+        });
+        if (data.status === 400) {
+          // console.log(Error);
+          alert("UserName already exist(redirecting to login page)");
+          navigate("/admin/login");
+        } else {
+          alert("User added successfully");
+          navigate("/admin/login");
+        }
       },
     });
-  const addUser = async (newUser) => {
-    await fetch(`${API}/admin/signUp`, {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify(newUser),
-    });
-    navigate("/admin/login");
-  };
   return (
-    <form onSubmit={handleSubmit} className="form">
+    <form onSubmit={handleSubmit} className="register-form">
       <h3>Signup Form</h3>
       <TextField
         label="User Name"
@@ -61,6 +68,9 @@ export function SignUp() {
       />
       <Button variant="contained" type="submit">
         Sign Up
+      </Button>
+      <Button variant="text" onClick={() => navigate("/admin/login")}>
+        Already an user? Login
       </Button>
     </form>
   );

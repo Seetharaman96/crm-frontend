@@ -35,27 +35,53 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+const checkAuth = (res) => {
+  if (res.status === 401) {
+    throw Error("unauthorized");
+  } else {
+    return res.json();
+  }
+};
+
+const logout = () => {
+  sessionStorage.clear();
+  window.location.href = "/admin";
+};
+
 export function AdminManager() {
   const [managerData, setManagerData] = useState(null);
 
   const getManager = () => {
-    fetch(`${API}/admin/manager`)
-      .then((res) => res.json())
-      .then((result) => setManagerData(result));
+    fetch(`${API}/admin/manager`, {
+      headers: {
+        "x-auth-token": sessionStorage.getItem("token"),
+      },
+    })
+      .then((res) => checkAuth(res))
+      .then((result) => setManagerData(result))
+      .catch((err) => logout());
   };
 
   useEffect(() => getManager(), []);
 
-  return managerData ? <Manager managerData={managerData} getManager={getManager} /> : <h2>Loading Table...</h2>
-
+  return managerData ? (
+    <Manager managerData={managerData} getManager={getManager} />
+  ) : (
+    <h2>Loading Table...</h2>
+  );
 }
 
-function Manager({managerData,getManager}){
+function Manager({ managerData, getManager }) {
   const navigate = useNavigate();
   const deleteManager = async (id) => {
-    await fetch(`${API}/admin/delete/manager/${id}`, {
-      method: "DELETE",
-    });
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user"
+    );
+    if (confirmDelete === true) {
+      await fetch(`${API}/admin/delete/manager/${id}`, {
+        method: "DELETE",
+      });
+    }
     getManager();
   };
 
@@ -97,7 +123,12 @@ function Manager({managerData,getManager}){
                   >
                     <InfoIcon />
                   </IconButton>
-                  <IconButton color="success" onClick={()=>navigate(`/admin/edit/manager/${managerData._id}`)}>
+                  <IconButton
+                    color="success"
+                    onClick={() =>
+                      navigate(`/admin/edit/manager/${managerData._id}`)
+                    }
+                  >
                     <EditIcon />
                   </IconButton>
                   <IconButton
