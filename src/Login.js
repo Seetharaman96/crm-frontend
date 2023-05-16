@@ -78,9 +78,9 @@ export function Login() {
       <Button variant="text" onClick={() => navigate("/admin/signUp")}>
         New User?Signup
       </Button>
-      <Button variant="text" onClick={() => navigate("/admin/forgetPassword")}>
-        Forget Password
-      </Button>
+      {/* // <Button variant="text" onClick={() => navigate("/admin/forgetPassword")}>
+      //   Forget Password
+      // </Button> */}
     </form>
   );
 }
